@@ -1,0 +1,3 @@
+Date: 3/24/2018
+Repository: https://github.com/mdelgert/openweathermap
+API: https://openweathermap.org/api
