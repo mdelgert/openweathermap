@@ -12,6 +12,7 @@ namespace OpenWeatherMap
 {
     public class WeatherApi
     {
+
         public void Run(WeatherModel wm)
         {
             var timer = new System.Timers.Timer {Interval = wm.Interval};
@@ -83,7 +84,8 @@ namespace OpenWeatherMap
 
         public void LogResponse(string response)
         {
-            
+            var fname = $@"Response{DateTime.Now:yyyyMMddHHmmss}.xml";
+            File.WriteAllText(fname, response);
         }
 
         public void LogMsgToFile(string msg)
@@ -107,6 +109,7 @@ namespace OpenWeatherMap
     }
 }
 
+//https://stackoverflow.com/questions/3025361/c-sharp-datetime-to-yyyymmddhhmmss-format
 //https://blogs.msdn.microsoft.com/csharpfaq/2006/03/27/how-can-i-easily-log-a-message-to-a-file-for-debugging-purposes/
 //http://api.openweathermap.org/data/2.5/weather?mode=xml&zip=44312,us&appid=f4f384540e308bdfc88f463e7d8df69d
 //http://api.openweathermap.org/data/2.5/weather?zip=44312,us&appid=f4f384540e308bdfc88f463e7d8df69d

@@ -18,6 +18,7 @@ namespace OpenWeatherMap
 
             wapi.LogMsgToFile("OpenWeatherMap Begin:");
             wapi.LogMsgToFile(response);
+            wapi.LogResponse(response);
             wapi.Run(wm);
             wapi.LogMsgToFile("OpenWeatherMap End:");
             Console.ReadKey();
