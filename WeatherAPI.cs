@@ -24,13 +24,13 @@ namespace OpenWeatherMap
             Console.BackgroundColor = ConsoleColor.Blue;
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("#####################################################");
-            Console.WriteLine("OpenWeatherApi: Version 1.0");
-            Console.WriteLine("Author: Matthew Elgert");
-            Console.WriteLine("https://github.com/mdelgert/openweathermap");
-            Console.WriteLine("#####################################################");
-            Console.WriteLine("Press any key to exit.");
-            LogMessage("Next WeatherMap Call in " + wm.Interval + " milliseconds.");
+            Console.WriteLine($@"#####################################################");
+            Console.WriteLine($@"OpenWeatherApi: Version 1.0");
+            Console.WriteLine($@"Author: Matthew Elgert");
+            Console.WriteLine($@"https://github.com/mdelgert/openweathermap");
+            Console.WriteLine($@"#####################################################");
+            Console.WriteLine($@"Press any key to exit.");
+            LogMessage($@"Next WeatherMap Call in {wm.Interval} milliseconds.");
 
             timer.Start();
             Console.ReadKey();
@@ -39,12 +39,12 @@ namespace OpenWeatherMap
         private void TimerEvent(WeatherModel wm)
         {
             CheckWeatherMap(GetRequestUrl(wm));
-            LogMessage("Next WeatherMap Call in " + wm.Interval + " milliseconds.");
+            LogMessage($@"Next WeatherMap Call in {wm.Interval} milliseconds.");
         }
 
         private void CheckWeatherMap(string requestUrl)
         {
-            LogMessage("ApiRequest=" + requestUrl);
+            LogMessage($@"ApiRequest={requestUrl}");
 
             var request = (HttpWebRequest)WebRequest.Create(requestUrl);
             try
@@ -55,12 +55,12 @@ namespace OpenWeatherMap
                     if (responseStream != null)
                     {
                         var reader = new StreamReader(responseStream, Encoding.UTF8);
-                        LogMessage("Success: WeatherApi received response.");
+                        LogMessage($@"Success: WeatherApi received response.");
                         LogResponse(reader.ReadToEnd());
                     }
                     else
                     {
-                        LogMessage("Error: WeatherApi received null response.");
+                        LogMessage($@"Error: WeatherApi received null response.");
                     }
                 }
             }
@@ -73,7 +73,7 @@ namespace OpenWeatherMap
                     {
                         var reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
                         var errorText = reader.ReadToEnd();
-                        LogMessage("Error: WeatherApi failed response with error=" + errorText);
+                        LogMessage($@"Error: WeatherApi failed response with error={errorText}");
                     }
                 }
             }
@@ -110,7 +110,7 @@ namespace OpenWeatherMap
         {
             var fileName = $@"Response{DateTime.Now:yyyyMMddHHmmss}.xml";
             File.WriteAllText(fileName, response);
-            LogMessage("Successfully save file " + fileName);
+            LogMessage($@"Successfully save file {fileName}");
         }
 
         private static void LogMessage(string message)
