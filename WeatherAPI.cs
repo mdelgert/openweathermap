@@ -15,12 +15,22 @@ namespace OpenWeatherMap
 {
     public class WeatherApi
     {
+        #region Public Methods
         public void Run()
         {
             var wm = GetModel();
             var timer = new System.Timers.Timer { Interval = wm.Interval };
             timer.Elapsed += (sender, e) => TimerEvent(wm);
+            SetupConsole();
+            LogMessage($@"Next WeatherMap Call in {wm.Interval} milliseconds.");
+            timer.Start();
+            Console.ReadKey();
+        }
+        #endregion
 
+        #region Private Methods
+        private static void SetupConsole()
+        {
             Console.BackgroundColor = ConsoleColor.Blue;
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.White;
@@ -30,19 +40,15 @@ namespace OpenWeatherMap
             Console.WriteLine($@"https://github.com/mdelgert/openweathermap");
             Console.WriteLine($@"#####################################################");
             Console.WriteLine($@"Press any key to exit.");
-            LogMessage($@"Next WeatherMap Call in {wm.Interval} milliseconds.");
-
-            timer.Start();
-            Console.ReadKey();
         }
 
-        private void TimerEvent(WeatherModel wm)
+        private static void TimerEvent(WeatherModel wm)
         {
             CheckWeatherMap(GetRequestUrl(wm));
             LogMessage($@"Next WeatherMap Call in {wm.Interval} milliseconds.");
         }
 
-        private void CheckWeatherMap(string requestUrl)
+        private static void CheckWeatherMap(string requestUrl)
         {
             LogMessage($@"ApiRequest={requestUrl}");
 
@@ -109,19 +115,23 @@ namespace OpenWeatherMap
         private static void LogResponse(string response)
         {
             var fileName = $@"Response{DateTime.Now:yyyyMMddHHmmss}.xml";
-            File.WriteAllText(fileName, response);
-            LogMessage($@"Successfully save file {fileName}");
+            using (var sw = new StreamWriter(fileName))
+            {
+                sw.WriteLine(response);
+                LogMessage($@"Successfully save file {fileName}");
+            }
         }
 
         private static void LogMessage(string message)
         {
-            using (var sw = File.AppendText(GetKeyValue("Log")))
+            using (var fa = File.AppendText(GetKeyValue("Log")))
             {
                 var logLine = $"{DateTime.Now:G}: {message}";
-                sw.WriteLine(logLine);
-                sw.Close();
+                fa.WriteLine(logLine);
+                fa.Close();
                 Console.WriteLine(logLine);
             } 
         }
+        #endregion
     }
 }
