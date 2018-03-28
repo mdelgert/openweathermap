@@ -15,7 +15,7 @@ namespace OpenWeatherMap
 {
     public class WeatherApi
     {
-        #region Public Methods
+        #region Public
         public void Run()
         {
             var wm = GetModel();
