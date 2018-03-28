@@ -1,43 +1,67 @@
-﻿using System;
-using System.Threading;
+﻿/*
+File: WeatherApi.cs
+Author: Matthew David Elgert
+Date: 3/27/2018
+https://github.com/mdelgert/openweathermap
+*/
+
+using System;
 using System.Net;
 using System.IO;
 using System.Configuration;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenWeatherMap
 {
     public class WeatherApi
     {
-
-        public void Run(WeatherModel wm)
+        public void Run()
         {
-            var timer = new System.Timers.Timer {Interval = wm.Interval};
-            timer.Elapsed += TimerEvent;
+            var wm = GetModel();
+            var timer = new System.Timers.Timer { Interval = wm.Interval };
+            timer.Elapsed += (sender, e) => TimerEvent(wm);
+
+            Console.BackgroundColor = ConsoleColor.Blue;
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("#####################################################");
+            Console.WriteLine("OpenWeatherApi: Version 1.0");
+            Console.WriteLine("Author: Matthew Elgert");
+            Console.WriteLine("https://github.com/mdelgert/openweathermap");
+            Console.WriteLine("#####################################################");
+            Console.WriteLine("Press any key to exit.");
+            LogMessage("Next WeatherMap Call in " + wm.Interval + " milliseconds.");
+
             timer.Start();
+            Console.ReadKey();
         }
 
-        private static void TimerEvent(object sender, System.Timers.ElapsedEventArgs e)
+        private void TimerEvent(WeatherModel wm)
         {
-            var wapi = new WeatherApi();
-            wapi.LogMsgToFile("Timer Event");
-            //Console.WriteLine("Timer Event");
+            CheckWeatherMap(GetRequestUrl(wm));
+            LogMessage("Next WeatherMap Call in " + wm.Interval + " milliseconds.");
         }
 
-        public string Check(string url)
+        private void CheckWeatherMap(string requestUrl)
         {
-            var request = (HttpWebRequest)WebRequest.Create(url);
+            LogMessage("ApiRequest=" + requestUrl);
+
+            var request = (HttpWebRequest)WebRequest.Create(requestUrl);
             try
             {
                 var response = request.GetResponse();
-
                 using (var responseStream = response.GetResponseStream())
                 {
-                    var reader = new StreamReader(responseStream, Encoding.UTF8);
-                    return reader.ReadToEnd();
+                    if (responseStream != null)
+                    {
+                        var reader = new StreamReader(responseStream, Encoding.UTF8);
+                        LogMessage("Success: WeatherApi received response.");
+                        LogResponse(reader.ReadToEnd());
+                    }
+                    else
+                    {
+                        LogMessage("Error: WeatherApi received null response.");
+                    }
                 }
             }
             catch (WebException ex)
@@ -45,16 +69,17 @@ namespace OpenWeatherMap
                 var errorResponse = ex.Response;
                 using (var responseStream = errorResponse.GetResponseStream())
                 {
-                    var reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
-                    var errorText = reader.ReadToEnd();
-                    // log errorText
+                    if (responseStream != null)
+                    {
+                        var reader = new StreamReader(responseStream, Encoding.GetEncoding("utf-8"));
+                        var errorText = reader.ReadToEnd();
+                        LogMessage("Error: WeatherApi failed response with error=" + errorText);
+                    }
                 }
-                throw;
             }
-
         }
 
-        public WeatherModel GetModel()
+        private static WeatherModel GetModel()
         {
             var wm = new WeatherModel
             {
@@ -66,7 +91,6 @@ namespace OpenWeatherMap
                 Mode = GetKeyValue("Mode"),
                 Interval = int.Parse(GetKeyValue("Interval"))
             };
-
             return wm;
         }
 
@@ -76,45 +100,28 @@ namespace OpenWeatherMap
             return value;
         }
 
-        public string GetRequestUrl(WeatherModel wm)
+        private static string GetRequestUrl(WeatherModel wm)
         {
             var requestUrl = $@"http://{wm.Url}?mode={wm.Mode}&units={wm.Units}&zip={wm.ZipCode},{wm.CountryCode}&appid={wm.ApiKey}";
             return requestUrl;
         }
 
-        public void LogResponse(string response)
+        private static void LogResponse(string response)
         {
-            var fname = $@"Response{DateTime.Now:yyyyMMddHHmmss}.xml";
-            File.WriteAllText(fname, response);
+            var fileName = $@"Response{DateTime.Now:yyyyMMddHHmmss}.xml";
+            File.WriteAllText(fileName, response);
+            LogMessage("Successfully save file " + fileName);
         }
 
-        public void LogMsgToFile(string msg)
+        private static void LogMessage(string message)
         {
             using (var sw = File.AppendText(GetKeyValue("Log")))
             {
-                try
-                {
-                    var logLine = $"{DateTime.Now:G}: {msg}";
-                    sw.WriteLine(logLine);
-                    Console.WriteLine(logLine);
-                }
-                finally
-                {
-                    sw.Close();
-                }
+                var logLine = $"{DateTime.Now:G}: {message}";
+                sw.WriteLine(logLine);
+                sw.Close();
+                Console.WriteLine(logLine);
             } 
-            
         }
-
     }
 }
-
-//https://stackoverflow.com/questions/3025361/c-sharp-datetime-to-yyyymmddhhmmss-format
-//https://blogs.msdn.microsoft.com/csharpfaq/2006/03/27/how-can-i-easily-log-a-message-to-a-file-for-debugging-purposes/
-//http://api.openweathermap.org/data/2.5/weather?mode=xml&zip=44312,us&appid=f4f384540e308bdfc88f463e7d8df69d
-//http://api.openweathermap.org/data/2.5/weather?zip=44312,us&appid=f4f384540e308bdfc88f463e7d8df69d
-//http://api.openweathermap.org/data/2.5/weather?mode=xml&units=imperial&zip=44312,us&appid=f4f384540e308bdfc88f463e7d8df69d
-//https://stackoverflow.com/questions/6169288/execute-specified-function-every-x-seconds
-//http://json2csharp.com/
-//https://stackoverflow.com/questions/8270464/best-way-to-call-a-json-webservice-from-a-net-console
-// Returns JSON string

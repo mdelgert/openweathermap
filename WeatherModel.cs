@@ -1,4 +1,11 @@
-﻿namespace OpenWeatherMap
+﻿/*
+File: WeatherModel.cs
+Author: Matthew David Elgert
+Date: 3/27/2018
+https://github.com/mdelgert/openweathermap
+*/
+
+namespace OpenWeatherMap
 {
     public class WeatherModel
     {

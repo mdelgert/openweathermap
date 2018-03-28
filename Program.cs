@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/*
+File: Program.cs
+Author: Matthew David Elgert
+Date: 3/27/2018
+https://github.com/mdelgert/openweathermap
+*/
 
 namespace OpenWeatherMap
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-
             var wapi = new WeatherApi();
-            var wm = wapi.GetModel();
-            var request = wapi.GetRequestUrl(wm);
-            var response = wapi.Check(request);
-
-            wapi.LogMsgToFile("OpenWeatherMap Begin:");
-            wapi.LogMsgToFile(response);
-            wapi.LogResponse(response);
-            wapi.Run(wm);
-            wapi.LogMsgToFile("OpenWeatherMap End:");
-            Console.ReadKey();
-
+            wapi.Run();
         }
     }
 }
